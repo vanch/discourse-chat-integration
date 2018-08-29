@@ -15,17 +15,20 @@ module DiscourseChat::Provider::TelegramProvider
       # If it's a new message (telegram also sends hooks for other reasons that we don't care about)
       if params.key?('message')
         chat_id = params['message']['chat']['id']
+        chat_type = params['message']['chat']['type']
 
-        message_text = process_command(params['message'])
+        if chat_type == 'private'
+          message_text = process_command(params['message'])
 
-        message = {
-          chat_id: chat_id,
-          text: message_text,
-          parse_mode: "html",
-          disable_web_page_preview: true,
-        }
+          message = {
+            chat_id: chat_id,
+            text: message_text,
+            parse_mode: "html",
+            disable_web_page_preview: true,
+          }
 
-        DiscourseChat::Provider::TelegramProvider.sendMessage(message)
+          DiscourseChat::Provider::TelegramProvider.sendMessage(message)
+        end
 
       elsif params.key?('channel_post') && params['channel_post']['text'].include?('/getchatid')
         chat_id = params['channel_post']['chat']['id']
